@@ -1,0 +1,32 @@
+yoav, eyalpo
+===============================================================================
+Yoav Levy, ID 314963257, yoav.levy2@mail.huji.ac.il
+Eyal Porges, ID 304789480, eyal.porges@mail.huji.ac.il
+===============================================================================
+
+                           Project 1 - Boolean Logic
+                           ------------------------- 
+  
+
+Submitted Files
+---------------
+README - This file.
+And.hdl
+And16.hdl
+DMux.hdl
+DMux4Way.hdl
+DMux8Way.hdl
+Mux.hdl
+Mux4Way16.hdl
+Mux8Way16.hdl
+Mux16.hdl
+Not.hdl
+Not16.hdl
+Or.hdl
+Or8Way.hdl
+Or16.hdl
+Xor.hdl
+
+Remarks
+-------
+None
