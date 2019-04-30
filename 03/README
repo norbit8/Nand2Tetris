@@ -1,0 +1,27 @@
+yoav, eyalpo
+===============================================================================
+Yoav Levy, ID 314963257, yoav.levy2@mail.huji.ac.il
+Eyal Porges, ID 304789480, eyal.porges@mail.huji.ac.il
+===============================================================================
+
+                           Project 3 - Sequential Logic
+                           ---------------------------- 
+  
+
+Submitted Files
+---------------
+README - This file.
+a-
+Bit.hdl
+Register.hdl
+RAM8.hdl
+RAM64.hdl
+PC.hdl
+b-
+RAM512.hdl
+RAM4K.hdl
+RAM16K.hdl
+
+Remarks
+-------
+None
