@@ -1,0 +1,42 @@
+yoav, eyalpo
+===============================================================================
+Yoav Levy, ID 314963257, yoav.levy2@mail.huji.ac.il
+Eyal Porges, ID 304789480, eyal.porges@mail.huji.ac.il
+===============================================================================
+
+                           Project 2 - Boolean Arithmetic
+                           ------------------------------
+  
+
+Submitted Files
+---------------
+README - This file.
+Add16.hdl
+ALU.hdl
+FullAdder.hdl
+HalfAdder.hdl
+Inc16.hdl
+Mul.hdl
+ShiftLeft.hdl
+ShiftRight.hdl
+
+Remarks
+-------
+* When working on the Mul.hdl chip we thought of two different
+ways to implement it. The first way included the arithmetic
+ShiftLeft.hdl chip we built beforehand - we took one of the numbers
+given and used ShiftLeft 15 times on it and each time we entered
+the shifted number as input to a Mux16 together with a 16-bit bus of
+zeroes. When testing it we found out we had to write some more code
+so the multiplication of two negative numbers will be executed correctly,
+and after seeing one of the answers in the project forum we thought maybe
+we should implement a logic ShiftLeft which would solve the problem
+without adding code, meaning it would be more efficient than using the
+arithmetic ShiftLeft.
+After thinking about it a bit we found a more efficient way to
+implement the multiplication - instead of using the ShiftLeft 15
+times and each time enter it as input to the Mux16 chips, we
+thought of "fanning-out" the input within the
+Mux16 using the HDL syntax regarding buses, and "shift" the
+number leftwise. This way we achieved the same effect as
+the ShiftLeft.hdl chip, but saved using 15 additional chips.

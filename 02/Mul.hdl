@@ -1,0 +1,47 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/02/Mul.hdl
+
+/**
+ * Multiplies two 16-bit values.
+ */
+ 
+CHIP Mul{
+    IN a[16], b[16];
+    OUT out[16];
+
+    PARTS:
+    Mux16(a= false, b= a, sel= b[0], out= Row1);
+	Mux16(a= false, b[0] = false, b[1..15] = a[0..14], sel= b[1], out= Row2);
+	Mux16(a= false, b[0..1] = false, b[2..15] = a[0..13], sel= b[2], out= Row3);
+	Mux16(a= false, b[0..2] = false, b[3..15] = a[0..12], sel= b[3], out= Row4);
+	Mux16(a= false, b[0..3] = false, b[4..15] = a[0..11], sel= b[4], out= Row5);
+	Mux16(a= false, b[0..4] = false, b[5..15] = a[0..10], sel= b[5], out= Row6);
+	Mux16(a= false, b[0..5] = false, b[6..15] = a[0..9], sel= b[6], out= Row7);
+	Mux16(a= false, b[0..6] = false, b[7..15] = a[0..8], sel= b[7], out= Row8);
+	Mux16(a= false, b[0..7] = false, b[8..15] = a[0..7], sel= b[8], out= Row9);
+	Mux16(a= false, b[0..8] = false, b[9..15] = a[0..6], sel= b[9], out= Row10);
+	Mux16(a= false, b[0..9] = false, b[10..15] = a[0..5], sel= b[10], out= Row11);
+	Mux16(a= false, b[0..10] = false, b[11..15] = a[0..4], sel= b[11], out= Row12);
+	Mux16(a= false, b[0..11] = false, b[12..15] = a[0..3], sel= b[12], out= Row13);
+	Mux16(a= false, b[0..12] = false, b[13..15] = a[0..2], sel= b[13], out= Row14);
+	Mux16(a= false, b[0..13] = false, b[14..15] = a[0..1], sel= b[14], out= Row15);
+	Mux16(a= false, b[0..14] = false, b[15] = a[0], sel= b[15], out= Row16);
+	
+	Add16(a= Row1, b= Row2, out = curSum1);
+	Add16(a= curSum1, b= Row3, out = curSum2);
+	Add16(a= curSum2, b= Row4, out = curSum3);
+	Add16(a= curSum3, b= Row5, out = curSum4);
+	Add16(a= curSum4, b= Row6, out = curSum5);
+	Add16(a= curSum5, b= Row7, out = curSum6);
+	Add16(a= curSum6, b= Row8, out = curSum7);
+	Add16(a= curSum7, b= Row9, out = curSum8);
+	Add16(a= curSum8, b= Row10, out = curSum9);
+	Add16(a= curSum9, b= Row11, out = curSum10);
+	Add16(a= curSum10, b= Row12, out = curSum11);
+	Add16(a= curSum11, b= Row13, out = curSum12);
+	Add16(a= curSum12, b= Row14, out = curSum13);
+	Add16(a= curSum13, b= Row15, out = curSum14);
+	Add16(a= curSum14, b= Row16, out = out);
+}
