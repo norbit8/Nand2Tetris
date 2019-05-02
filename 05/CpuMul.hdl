@@ -1,0 +1,60 @@
+/**
+* This chip is an extension of the book CPU by using the extended ALU.
+* More specificly if instruction[15]==0 or (instruction[14] and instruction[13] equals 1)
+* the CpuMul behave exactly as the book CPU.
+* While if it is C instruction and instruction[13] == 0 the output will be D*A/M 
+* (according to instruction[12]).
+* Moreover, if it is c instruction and instruction[14] == 0 it will behave as follows:
+*
+* instruction:  | 12 | 11 | 10 |
+* _____________________________
+* shift left D  | 0  | 1  | 1  |
+* shift left A  | 0  | 1  | 0  |
+* shift left M  | 1  | 1  | 0  |
+* shift right D | 0  | 0  | 1  |
+* shift right A | 0  | 0  | 0  |
+* shift right M | 1  | 0  | 0  |
+**/
+
+CHIP CpuMul{
+
+    IN  inM[16],         // M value input  (M = contents of RAM[A])
+        instruction[16], // Instruction for execution
+        reset;           // Signals whether to re-start the current
+                         // program (reset=1) or continue executing
+                         // the current program (reset=0).
+
+    OUT outM[16],        // M value output
+        writeM,          // Write into M? 
+        addressM[15],    // Address in data memory (of M)
+        pc[15];          // address of next instruction
+
+     PARTS:
+	Mux16(a= instruction, b= Cinstr, sel= instruction[15], out= aInstruction);
+	And(a= instruction[3],b= instruction[15], out= writeM); // writeM is TRUE only if it is a C instruction
+	Not(in= instruction[15], out= notMSB);
+	Or(a= instruction[5], b=notMSB , out= loadRegA); // Load ARegister only if it is an A instruction or A control bit in C instruction is TRUE
+	And(a= instruction[4], b= instruction[15], out= loadRegD); // Load DRegister only if it is C and D control bit is TRUE
+	ARegister(in= aInstruction, load= loadRegA, out= aReg, out[0..14]= addressM);
+	DRegister(in= Cinstr, load= loadRegD, out= dReg);
+	Mux16(a= aReg, b= inM, sel= instruction[12], out= yALU); //determines whether to enter the ALU M or A
+	ExtendAlu(x= dReg,y= yALU, instruction= instruction[6..14], out=outM, zr= zr, ng= ng, out= Cinstr);
+
+	//Here we go over all the possiblities of the output of the ALU with respect of sign and zero or not
+
+	Nand(a= ng, b= ng, out =Notng);
+	Nand(a= zr, b= zr, out= Notzr);
+	Or(a=ng, b=zr, out=ngOrzr);
+	Or(a=Notng, b=zr, out=NotngOrzr);
+	And(a= Notng, b= Notzr, out= NotzrAndNotng);
+	And(a= ng, b= Notzr, out=ngAndNotzr);
+
+	//In this following Mux we determine what will be loaded to the PC according to the jump control bits in the C instruction and the zr and ng bits emitted by the ALU
+
+	Mux8Way16(a[15]= false, a[0..14]= false, b[15]= NotzrAndNotng, b[0..14]= false,	 c[15]= zr, c[0..14]= false, d[15]= NotngOrzr, d[0..14]= false, e[15]= ngAndNotzr, e[0..14]= false, f[15]= Notzr, f[0..14]= false, g[15]= ngOrzr, g[0..14]= false, h[15]= true, h[0..14]= false, sel= instruction[0..2], out[15]=loadPC);
+
+	//The load bit to the PC is affected by the Mux only if the instruction was a C instruction, elsewise it is 0
+
+	And(a= loadPC, b= instruction[15], out= loadPCcorrect);
+	PC(in= aReg, load=loadPCcorrect , inc= true, reset= reset, out[0..14]= pc);
+}
