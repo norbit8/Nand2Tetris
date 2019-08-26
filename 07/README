@@ -1,0 +1,23 @@
+yoav, eyalpo
+===============================================================================
+Yoav Levy, ID 314963257, yoav.levy2@mail.huji.ac.il
+Eyal Porges, ID 304789480, eyal.porges@mail.huji.ac.il
+===============================================================================
+
+                           Project 7 - Virtual Machine (Arithmetic)
+                           ----------------------------------------
+  
+Submitted Files
+---------------
+README - This file.
+VMtranslator.py
+coder.py
+parser.py
+Makefile
+VMtranslator - shell script
+
+Remarks
+-------
+In the coder class, in eq, gt and lt we decided to insert before each label
+the file name and number to the name of the loop so
+there will not be multiple loops with the same name
