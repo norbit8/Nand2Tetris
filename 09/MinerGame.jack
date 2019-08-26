@@ -1,0 +1,333 @@
+/** --- MINER GAME CLASS --- 
+    RUNS & MANAGES THE GAME 
+*/
+class MinerGame {
+    	field int diamonds, lives, score;
+    	field Line line;
+    	field CoordArr lineCoords;
+    	field Array elements;
+    	static int memAddress;
+	static int minerPosX, minerPosY;
+	static int target;
+
+    	/** Constructs a new MinerGame. */
+	constructor MinerGame new() {
+		let minerPosX = (Utils.mod(16 * 1423, 512)) + 8;
+		let minerPosY = (1423 / 32) + 16;
+		let score = 0;
+		let lives = 3;
+		let diamonds = 5;
+		let target = 0;
+		let lineCoords = CoordArr.new(minerPosX, minerPosY);
+		do Screen.setColor(true);
+		do Screen.drawRectangle(0, 60, 511, 255);
+		do drawMiner();
+		do Screen.setColor(false);
+		//here we add bombs, diamonds and rocks
+		let elements = Array.new(12);
+        	let elements[0] = Diamond.new(5924);
+        	let elements[1] = Diamond.new(5872);
+        	let elements[2] = Diamond.new(5759);
+        	let elements[3] = Diamond.new(5944); // diamond end
+        	let elements[4] = Bomb.new(5160);
+        	let elements[5] = Bomb.new(5741);
+        	let elements[6] = Bomb.new(4944);
+        	let elements[7] = Bomb.new(6035);
+        	let elements[8] = Bomb.new(4404); // bomb end
+        	let elements[9] = Rock.new(4203);
+        	let elements[10] = Rock.new(4644);
+        	let elements[11] = Rock.new(6076); // rocks end
+		// hooks
+		let line = Line.new(minerPosX, minerPosY + 1);
+		// DRAW MENU:
+		do Output.moveCursor(0, 0);
+		do Output.printString("lives:          Score: ");
+		do drawHeart(101 - (32*6));
+		do drawHeart(100 - (32*6));
+		do drawHeart(99 - (32*6));
+        	return this;
+    	}
+
+	method void drawMiner() {
+		let memAddress = 16384 + 1423;
+		do Memory.poke(memAddress + 0, 384);
+		do Memory.poke(memAddress + 32, 960);
+		do Memory.poke(memAddress + 64, 2016);
+		do Memory.poke(memAddress + 96, 16380);
+		do Memory.poke(memAddress + 128, 2064);
+		do Memory.poke(memAddress + 160, 2640);
+		do Memory.poke(memAddress + 192, 1056);
+		do Memory.poke(memAddress + 224, 1059);
+		do Memory.poke(memAddress + 256, 3026);
+		do Memory.poke(memAddress + 288, 28686);
+		do Memory.poke(memAddress + 320, 20488);
+		do Memory.poke(memAddress + 352, -12280);
+		do Memory.poke(memAddress + 384, 4104);
+		do Memory.poke(memAddress + 416, 8184);
+		do Memory.poke(memAddress + 448, 1056);
+		do Memory.poke(memAddress + 480, 1056);
+		return;
+	}
+
+	//responsible for drawing the hook while it isn't tossed into the ground
+	method void nextLine() {
+		var int counter;
+		var bool state;
+		var Array coords;
+		var Array subArr;
+		let counter = lineCoords.getCurrLine();
+		let state = lineCoords.getState();
+		let coords = lineCoords.getCoordinates();
+		let subArr = coords[counter];
+		do line.erase();
+		if(state = true) {
+			do lineCoords.setCurrLine(1);
+		}
+		else {
+			do lineCoords.setCurrLine(-1);
+		}
+		do line.setHook(subArr[0], subArr[1]);
+	    	do line.draw();
+		let counter = lineCoords.getCurrLine();
+		if((state = true) & (counter = 78)) {
+			do lineCoords.setState(false);
+		}
+		if((state = false) & (counter = 0)) {
+			do lineCoords.setState(true);
+		}
+		return;
+	}
+
+	//checks if there was a collission between the hook and an element inside the ground
+	method bool checkImpact() {
+		var int index;
+		var Diamond diamond;
+		var Bomb bomb;
+		var bool collided;
+		var Rock rock;
+		let target = 0;
+		let index = 3;
+		let collided = true;
+		//for each element checks whether the hook entered the bounds of the element which is 16X16 bits
+		while (~(index = -1)) {
+		// diamonds:
+			let diamond = elements[index];
+			if((line.getHookX() > (diamond.getLocX() - 10)) & (line.getHookX() < (diamond.getLocX() + 20)) & (line.getHookY() > (diamond.getLocY() - 25)) &
+			   (line.getHookY() < (diamond.getLocY() + 20))) {
+				do diamond.setCollide(true);
+				let target = index;
+				let collided = false;
+			}
+			let index = index - 1;
+		} 
+		let index = 8;
+		while (~(index = 3)) {
+		// bombs:
+			let bomb = elements[index];
+			if((line.getHookX() > (bomb.getLocX())) & (line.getHookX() < (bomb.getLocX() + 20)) & (line.getHookY() > (bomb.getLocY() + 5)) & (line.getHookY() < (bomb.getLocY() + 20))) {
+				do bomb.setCollide(true);
+				let target = index;
+				let collided = false;
+			} 
+			let index = index - 1;
+		} 
+		let index = 11;
+		while (~(index = 8)) {
+		// rocks:
+			let rock = elements[index];
+			if((line.getHookX() > (rock.getLocX())) & (line.getHookX() < (rock.getLocX() + 20)) & (line.getHookY() > (rock.getLocY() )) & (line.getHookY() < (rock.getLocY() + 20))) {
+				do diamond.setCollide(true);
+				let target = index;
+				let collided = false;
+			} 
+			let index = index - 1;
+		} 
+		return collided;
+	}
+
+	method void throw() {
+		var int tempx;
+		var int tempy;
+		var int vectorX;
+		var int vectorY;
+		var int savedy;
+		var int prevX;
+		var int prevY;
+		var Line back;
+		var bool flag;
+		var Diamond diamond;
+		var Bomb bomb;
+		var Rock rock;
+		let flag = true;
+		let savedy = line.getHookY();
+		let tempx = line.getHookX();
+		let tempy = line.getHookY();
+		let vectorX = tempx - minerPosX;
+		let vectorY = tempy - minerPosY;
+		while ( line.getHookX() < 500 & line.getHookX() > 0 & line.getHookY() < 255 & (flag = true)) {
+			do Sys.wait(50);
+			let prevX = tempx;
+			let prevY = tempy;			
+			let tempx = tempx + vectorX;
+			let tempy = tempy + vectorY;
+			if (~(tempx > 500) & ~(tempy > 255) & ~(tempx < 10)) {
+				do line.setHook(tempx, tempy);
+				do line.draw();	
+				let flag = checkImpact();
+				if ((target < 4) & (target > 0) & (flag = false)) {
+					let score = score + 10;
+					let diamond = elements[target];
+					do diamond.erase();
+					do diamond.setLoc(0, 0);
+					do Output.moveCursor(0, 26);	
+					do Output.moveCursor(0, 25);
+					do Output.moveCursor(0, 24);
+					//do Output.printString("  ");
+					do Output.printInt(score);
+				}								
+				if ((target > 3) & (target < 9) & (flag = false)) {
+					let score = score - 10;					
+					let bomb = elements[target];
+					let lives = lives - 1;
+					do bomb.erase();
+					do bomb.setLoc(0,0);
+					do Output.moveCursor(0, 26);
+					do Output.moveCursor(0, 25);
+					do Output.moveCursor(0, 24);
+					//do Output.printString("  ");
+					do Output.printInt(score);
+				}	
+				if ((target > 8) & (target < 12) & (flag = false)) {
+					let score = score - 5;
+					let rock = elements[target];
+					do rock.erase();
+					do rock.setLoc(0, 0);
+					do Output.moveCursor(0, 26);
+					do Output.moveCursor(0, 25);
+					do Output.moveCursor(0, 24);
+					//do Output.printString("  ");
+					do Output.printInt(score);
+				}
+				let target = 0;		
+			}
+			else {
+				let flag = false;
+			}
+		}
+		let flag = true;
+		let back = Line.new(prevX, prevY);
+		do back.setStart(line.getHookX(), line.getHookY());
+		while (back.getHookY() > savedy & flag) {
+			do Sys.wait(50);
+			let prevX = prevX - vectorX;
+			let prevY = prevY - vectorY;
+			if (~(prevY < savedy)) {
+				do back.setHook(prevX, prevY);
+				do back.erase();
+			}
+			else {
+				let flag = false;
+			}
+		}
+		do back.dispose();
+		return;
+	}
+
+    	method void check_status() {
+		if (lives = 3) {
+			do Output.moveCursor(0, 12);
+			do Output.printString("  ");
+			do Output.moveCursor(1, 12);
+			do Output.printString("  ");
+		}
+		if (lives = 2) {
+			do Output.moveCursor(0, 10);
+			do Output.printString("  ");
+			do Output.moveCursor(1, 10);
+			do Output.printString("  ");
+		}
+		if (lives = 1) {
+			do Output.moveCursor(0, 8);
+			do Output.printString("  ");
+			do Output.moveCursor(1, 8);
+			do Output.printString("  ");
+		}
+		if (lives = 0) {
+			do Output.moveCursor(0, 6);
+			do Output.printString("  ");
+			do Output.moveCursor(1, 6);
+			do Output.printString("  ");
+		}
+		return;
+    }
+	
+    method void run() {
+	var int currKey;
+	var int counter;
+	var Rock rock;
+	var Bomb bomb;
+	var Diamond diamond;
+	let counter = 0;
+	let currKey = Keyboard.keyPressed();
+	//if 'q' or "esc" are pressed exit the game, elsewise play until finish diamonds
+	//or run out of lives
+	while (~(currKey = 81) & ~(currKey = 140) & ~(lives = 0) & ~(diamonds = 0)) {
+		//if "down" arrow was pressed throw the hook!
+		if(currKey = 133) {
+			do throw(); //throws the hook downwards and checks if there is an impact
+		}
+		do Sys.wait(50);
+		do nextLine(); // draws the next line of the hook and erases the previous one
+		let currKey = Keyboard.keyPressed();
+		// INCREASE SCORE:
+		do check_status();
+	}
+	while(counter < 12) {
+		if(counter < 4 & counter > 0) {
+			let diamond = elements[counter];
+			do diamond.dispose();
+		}
+		if(counter < 9 & counter > 3) {
+			let bomb = elements[counter];
+			do bomb.dispose();
+
+		}
+		if(counter < 12 & counter > 8) {
+			let rock = elements[counter];
+			do rock.dispose();
+		}
+		let counter = counter + 1;
+	}
+	do elements.dispose();
+	do line.dispose();
+	do lineCoords.dispose();
+        return;
+    }
+
+	method void drawHeart(int location) {
+		var int memAddress;
+		let memAddress = 16384 + location;
+		do Memory.poke(memAddress + 0, 0);
+		do Memory.poke(memAddress + 32, 0);
+		do Memory.poke(memAddress + 64, 0);
+		do Memory.poke(memAddress + 96, 0);
+		do Memory.poke(memAddress + 128, 7800);
+		do Memory.poke(memAddress + 160, 16364);
+		do Memory.poke(memAddress + 192, 32758);
+		do Memory.poke(memAddress + 224, 32766);
+		do Memory.poke(memAddress + 256, 32766);
+		do Memory.poke(memAddress + 288, 32766);
+		do Memory.poke(memAddress + 320, 16380);
+		do Memory.poke(memAddress + 352, 8184);
+		do Memory.poke(memAddress + 384, 4080);
+		do Memory.poke(memAddress + 416, 2016);
+		do Memory.poke(memAddress + 448, 960);
+		do Memory.poke(memAddress + 480, 384);
+		return;
+	}
+	
+	method void dispose() {
+		do Memory.deAlloc(this);
+		return;
+	}
+} // MinerGame class

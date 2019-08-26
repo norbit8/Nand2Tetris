@@ -1,0 +1,52 @@
+class Line {
+	field int x_hook, y_hook;
+	field int start_x, start_y;
+
+	constructor Line new(int ax_hook, int ay_hook) {	
+        let x_hook = ax_hook;
+		let y_hook = ay_hook;
+	let start_x = (Utils.mod(16 * 1423, 512)) + 8;
+	let start_y = (1423 / 32) + 16;
+		return this;
+	}
+	
+	// SETTER:
+	method void setHook(int x, int y) {
+		let x_hook = x;
+		let y_hook = y;
+		return;
+	}
+	
+	method void setStart(int x, int y) {
+		let start_x = x;
+		let start_y = y;
+		return;
+	}
+
+	// GETTER:
+	method int getHookX() {
+		return x_hook;
+	}
+
+	method int getHookY() {
+		return y_hook;
+	}
+
+	// CLASS FUNCTION:	
+	method void draw() {
+        	do Screen.setColor(false);
+		do Screen.drawLine(start_x, start_y, x_hook, y_hook);
+        return;
+	}
+
+	method void erase() {
+		do Screen.setColor(true);
+		do Screen.drawLine(start_x, start_y, x_hook, y_hook);
+		return;
+	}
+
+	method void dispose() {
+		do Memory.deAlloc(this);
+		return;
+	}
+} // Line class

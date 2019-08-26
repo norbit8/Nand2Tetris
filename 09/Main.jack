@@ -1,0 +1,20 @@
+/** Initializes a new Square Dance game and starts running it. */
+class Main{
+    function void main(){
+        var MinerGame game;
+	var int counter;
+	var int currKey;
+	let counter = 128;
+	do Output.moveCursor(8, 20);
+	do Output.printString("Welcome to MinerGame!");
+	do Output.moveCursor(10, 19);	
+	do Output.printString("-PRESS SPACE TO BEGIN-");
+	while (~(currKey = 32)) {
+		let currKey = Keyboard.keyPressed();		
+	}
+        let game = MinerGame.new();
+        do game.run();
+        do game.dispose();
+        return;
+    }
+}

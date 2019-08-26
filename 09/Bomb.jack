@@ -1,0 +1,69 @@
+class Bomb {
+	field int loc_x, loc_y;
+	field bool wasImpact;
+	field int location;
+
+	constructor Bomb new(int aLocation) {
+		let loc_x = Utils.mod(16 * aLocation, 512);
+		let loc_y = aLocation / 32;
+		let location = aLocation;
+		let wasImpact = false;
+        	do draw();
+		return this;
+	}
+
+	method void draw() {
+		var int memAddress;
+        	let memAddress = 16384 + location;
+		do Memory.poke(memAddress + 0, -115);
+		do Memory.poke(memAddress + 32, -142);
+		do Memory.poke(memAddress + 64, -963);
+		do Memory.poke(memAddress + 96, -4081);
+		do Memory.poke(memAddress + 128, -8121);
+		do Memory.poke(memAddress + 160, -16285);
+		do Memory.poke(memAddress + 192, -16333);
+		do Memory.poke(memAddress + 224, -32751);
+		do Memory.poke(memAddress + 256, -32767);
+		do Memory.poke(memAddress + 288, -32759);
+		do Memory.poke(memAddress + 320, -32767);
+		do Memory.poke(memAddress + 352, -16381);
+		do Memory.poke(memAddress + 384, -16381);
+		do Memory.poke(memAddress + 416, -8185);
+		do Memory.poke(memAddress + 448, -4081);
+		do Memory.poke(memAddress + 480, -961);
+		return;
+	}
+
+	method int getLocX() {
+		return loc_x;
+	}
+
+	method int getLocY() {
+		return loc_y;
+	}
+
+	method bool collided() {
+		return wasImpact;
+	}
+	
+	method void setCollide(bool new_state) {
+		let wasImpact = new_state;
+		return;
+	}
+	
+	method void setLoc(int new_x, int new_y) {
+		let loc_x = new_x;
+		let loc_y = new_y;
+		return;
+	}	
+    	method void erase() {
+		do Screen.setColor(true);
+        	do Screen.drawRectangle(loc_x, loc_y, loc_x + 15, loc_y + 15);
+        	return;
+	}
+
+    	method void dispose() {
+         	do Memory.deAlloc(this);
+  	      return;   
+    	}
+}

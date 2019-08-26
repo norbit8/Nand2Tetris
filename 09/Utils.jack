@@ -1,0 +1,9 @@
+class Utils{
+
+    function int mod(int x, int d){
+        var int z;
+        let z = x / d;
+        return x - (z * d);
+    }
+    
+}
