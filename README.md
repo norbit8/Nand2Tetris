@@ -10,3 +10,5 @@ parsing, code generation, and classical algorithms and data structures for memor
 vector graphics, input-output handling, and various other topics that lie at the very core of every modern computer system.
 
 Note: project 10 is part 1 of project 11 therefore I just included project 11 in this repo.
+
+[i][https://i.ytimg.com/vi/tNPsu1fPXlg/hqdefault.jpg]
